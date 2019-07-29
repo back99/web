@@ -1,0 +1,36 @@
+@charset "UTF-8";
+
+img {
+	border: 5px solid #FAAC58;
+	width: 170px;
+	height: 250px;
+	display: inline-block;
+	margin-left: 30px;
+}
+
+body>section>hr {
+	border: 1px solid #58D3F7;
+	margin: 0px 20px;
+}
+
+article {
+	margin-top: 70px;
+	margin-bottom: 30px
+}
+
+p {
+	display: inline-block;
+	margin-left: 30px;
+	vertical-align: top;
+	margin-top: 0px;
+	line-height: 200%;
+}
+
+a {
+	text-decoration: none;
+}
+
+hr {
+	border: 5px solid #58D3F7;
+	margin: 50px 0px;
+}

@@ -9,5 +9,6 @@ boostcourse web full-stack 과정 프로젝트3~6
              - ajax
              - javascript 객체 리터럴, es6
              - logger
+             - restAPI
      
              

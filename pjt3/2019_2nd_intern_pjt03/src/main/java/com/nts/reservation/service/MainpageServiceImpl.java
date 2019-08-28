@@ -2,18 +2,17 @@ package com.nts.reservation.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.nts.reservation.dao.CategoryDao;
-import com.nts.reservation.dao.ProductDao;
-import com.nts.reservation.dao.PromotionDao;
-import com.nts.reservation.dto.CategoryDto;
-import com.nts.reservation.dto.CategoryResultSet;
-import com.nts.reservation.dto.ProductDto;
-import com.nts.reservation.dto.ProductResultSet;
-import com.nts.reservation.dto.PromotionDto;
-import com.nts.reservation.dto.PromotionResultSet;
+import com.nts.reservation.dto.Category.CategoryDto;
+import com.nts.reservation.dto.Category.CategoryResponse;
+import com.nts.reservation.dto.Product.ProductDto;
+import com.nts.reservation.dto.Product.ProductResponse;
+import com.nts.reservation.dto.Promotion.PromotionDto;
+import com.nts.reservation.dto.Promotion.PromotionResponse;
+import com.nts.reservation.mapper.CategoryMapper;
+import com.nts.reservation.mapper.ProductMapper;
+import com.nts.reservation.mapper.PromotionMapper;
 
 /**
  * @FileName : MainpageServiceImpl.java
@@ -24,21 +23,20 @@ import com.nts.reservation.dto.PromotionResultSet;
 @Service
 public class MainpageServiceImpl implements MainpageService {
 
-	private final PromotionDao promotionDao;
-	private final CategoryDao categoryDao;
-	private final ProductDao productDao;
+	private final CategoryMapper categoryMapper;
+	private final PromotionMapper promotionMapper;
+	private final ProductMapper productMapper;
 
 	/**
+	 * 생성자 주입
 	 * @param promotionDao
 	 * @param categoryDao
 	 * @param productDao
-	 * 생성자 주입
 	 */
-	@Autowired
-	public MainpageServiceImpl(PromotionDao promotionDao, CategoryDao categoryDao, ProductDao productDao) {
-		this.promotionDao = promotionDao;
-		this.categoryDao = categoryDao;
-		this.productDao = productDao;
+	public MainpageServiceImpl(PromotionMapper promotionMapper, CategoryMapper categoryMapper, ProductMapper productMapper) {
+		this.promotionMapper = promotionMapper;
+		this.categoryMapper = categoryMapper;
+		this.productMapper = productMapper;
 	}
 
 	/**
@@ -49,24 +47,24 @@ public class MainpageServiceImpl implements MainpageService {
 	 * @return ~ResultSet
 	 */
 	@Override
-	public PromotionResultSet getPromotionList() {
-		List<PromotionDto> promotionList = promotionDao.selectPromotionList();
+	public PromotionResponse getPromotionList() {
+		List<PromotionDto> promotionList = promotionMapper.selectPromotionList();
 
-		return new PromotionResultSet(promotionList);
+		return new PromotionResponse(promotionList);
 	}
 
 	@Override
-	public CategoryResultSet getCategoryList() {
-		List<CategoryDto> categoryList = categoryDao.selectCategoryList();
+	public CategoryResponse getCategoryList() {
+		List<CategoryDto> categoryList = categoryMapper.selectCategoryList();
 
-		return new CategoryResultSet(categoryList);
+		return new CategoryResponse(categoryList);
 	}
 
 	@Override
-	public ProductResultSet getProductListByCategoryId(int start, int categoryId) {
-		List<ProductDto> productList = productDao.selectProductListByCategoryId(start, categoryId);
-		int productTotalCount = productDao.selectProductTotalCountByCategoryId(categoryId);
+	public ProductResponse getProductListByCategoryId(int start, Integer categoryId) {
+		List<ProductDto> productList = productMapper.selectProductListByCategoryId(start, categoryId);
+		int productTotalCount = productMapper.selectProductTotalCountByCategoryId(categoryId);
 
-		return new ProductResultSet(productTotalCount, productList);
+		return new ProductResponse(productTotalCount, productList);
 	}
 }

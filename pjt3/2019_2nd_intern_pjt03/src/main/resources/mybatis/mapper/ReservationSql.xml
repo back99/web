@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nts.reservation.mapper.ReservationMapper">
+
+	<select id="selectReserveResponseByDisplayInfoId" parameterType="int" resultMap="ReserveResponse">
+			SELECT di.product_id            AS productId
+				 , pr.description 			AS title
+				 , FROM_UNIXTIME(UNIX_TIMESTAMP()+(RAND()*UNIX_TIMESTAMP(date_add(now(), interval + 5 day)-now())),'%Y.%m.%d') AS reserveDate
+				 , fi.save_file_name 		AS saveFileName
+				 , di.place_name 			AS placeName
+				 , di.opening_hours 		AS openingHours
+			  FROM display_info 			AS di
+		INNER JOIN product_image 			AS pi 			ON pi.product_id = di.product_id
+		INNER JOIN file_info 				AS fi 			ON pi.file_id = fi.id
+		INNER JOIN product                  AS pr			ON pr.id = di.product_id
+			 WHERE di.id = #{displayInfoId} 
+			   AND pi.type = 'th' 
+	</select>
+	
+	<select id="selectReserveByDisplayInfoId" parameterType="int" resultType="com.nts.reservation.dto.Reservation.Reserve">
+			SELECT rip.reservation_info_id  AS reservationInfoId
+				 , rip.product_price_id		AS productPriceId
+				 , pp.price_type_name 		AS priceTypeName
+			  	 , pp.price 				AS price
+			     , pp.discount_rate 		AS discountRate
+		  	  FROM display_info 			AS di
+		INNER JOIN product_image 			AS pi 			ON di.product_id = pi.product_id
+		INNER JOIN file_info 				AS fi 			ON pi.file_id = fi.id
+		INNER JOIN product_price 			AS pp 			ON pp.product_id = di.product_id
+		INNER JOIN reservation_info_price	AS rip			ON rip.product_price_id = pp.id
+			 WHERE di.id = #{productId} 
+			   AND pi.type = 'th' 
+			   AND pp.price_type_name IN ('A','Y','B','S','D','C','E')
+		  GROUP BY rip.product_price_id
+	</select>
+	
+	<insert id="insertReservationInfo" parameterType="com.nts.reservation.dto.Reservation.ReservationParam" useGeneratedKeys="true"
+    keyProperty="id">
+		INSERT INTO reservation_info
+				  ( display_info_id
+				  , product_id
+				  , reservation_email
+				  , reservation_name
+				  , reservation_tel
+				  , reservation_date
+				  , cancel_flag
+				  , create_date
+				  , modify_date)
+			 VALUES 
+				  ( #{reservationParam.displayInfoId}
+				  , #{reservationParam.productId}
+				  , #{reservationParam.reservationEmail}
+				  , #{reservationParam.reservationName}
+				  , #{reservationParam.reservationTelephone}
+				  , #{reservationParam.reservationYearMonthDay}
+				  , 0
+				  , NOW()
+				  , NOW() )
+				  
+	</insert>
+	
+	<insert id="insertPricesInfo" parameterType="com.nts.reservation.dto.Reservation.ReservationPrice" useGeneratedKeys="true">
+		INSERT INTO reservation_info_price
+				  ( product_price_id
+				  , reservation_info_id
+				  , count)
+			 VALUES
+			 <foreach item="prices" collection="prices" separator=",">
+				  ( #{prices.productPriceId}
+				  , #{prices.priceInfoId}
+				  , #{prices.count})
+  			 </foreach>
+	</insert> 
+	
+	<select id="selectReserveInfoByEmail" parameterType="String" resultMap="ReserveInfoResponse">
+		SELECT ri.id            						AS reservationInfoId
+			 , p.description 							AS title
+			 , di.opening_hours 						AS openingHour
+			 , di.place_street 							AS placeStreet
+			 , di.place_name 							AS placeName
+			 , IF(ri.cancel_flag, 'true', 'false') 		AS cancelFlag
+			 , SUM(rip.count * pp.price) 				AS totalPrice
+			 , ri.reservation_date						AS reservationDate
+			 , ri.reservation_date						AS reservationStringDate
+		  FROM reservation_info 						AS ri 
+	INNER JOIN reservation_info_price 					AS rip 			ON ri.id = rip.reservation_info_id
+	INNER JOIN product_price 							AS pp 			ON pp.id = rip.product_price_id
+	INNER JOIN product 									AS p 			ON pp.product_id = p.id
+	INNER JOIN display_info 							AS di 			ON di.product_id = p.id
+		 WHERE ri.reservation_email= #{email}
+	  GROUP BY ri.id
+	</select>
+	
+	
+	<select id="selectPrcieCountByEmail" parameterType="String" resultType="com.nts.reservation.dto.Reservation.PriceCount">
+		SELECT rip.count 								AS count
+			 , pp.price_type_name 						AS typeName
+		  FROM reservation_info 						AS ri 
+	INNER JOIN reservation_info_price 					AS rip 			ON ri.id = rip.reservation_info_id
+	INNER JOIN product_price 							AS pp 			ON pp.id = rip.product_price_id
+	 	 WHERE ri.id = #{reservationInfoId}
+	</select>
+	
+	<select id="countReservationInfo" parameterType="String" resultType="int">
+		SELECT COUNT(*) AS count
+		  FROM reservation_info 						AS ri 
+	 	 WHERE ri.reservation_email= #{email}
+	</select>
+	
+	<update id="updateCancelflagByReservationInfoId" parameterType="com.nts.reservation.dto.Reservation.ReservationInfo">
+		UPDATE reservation_info
+		   SET cancel_flag = 1
+		 WHERE id = #{reservationInfoId}
+	</update>
+
+	<resultMap id="ReserveInfoResponse" type="com.nts.reservation.dto.Reservation.ReservationInfo">
+	  <id property="reservationInfoId" column="reservationInfoId"/>
+	  <result property="title" column="title"/>
+	  <result property="openingHour" column="openingHour"/>
+	  <result property="placeStreet" column="placeStreet"/>
+	  <result property="placeName" column="placeName"/>
+	  <result property="cancelFlag" column="cancelFlag"/>
+	  <result property="totalPrice" column="totalPrice"/>
+	  <result property="reservationDate" column="reservationDate"/>
+	  <result property="reservationStringDate" column="reservationStringDate"/>
+	  <collection property="priceCount" column="reservationInfoId" ofType="com.nts.reservation.dto.Reservation.PriceCount" select="selectPrcieCountByEmail"/>
+	</resultMap>
+
+	<resultMap id="ReserveResponse" type="com.nts.reservation.dto.Reservation.ReserveResponse">
+	  <id property="svaeFileName" column="svaeFileName"/>
+	  <result property="productId" column="productId"/>
+	  <result property="title" column="title"/>
+	  <result property="reserveDate" column="reserveDate"/>
+	  <result property="placeName" column="placeName"/>
+	  <result property="openingHours" column="openingHours"/>
+	  <collection property="reserve" column="productId" ofType="com.nts.reservation.dto.Reservation.Reserve" select="selectReserveByDisplayInfoId"/>
+	</resultMap>
+	
+</mapper>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nts.reservation.mapper.PromotionMapper">
+
+	<select id="selectPromotionList" resultType="com.nts.reservation.dto.Promotion.PromotionDto">
+		SELECT pr.id 					AS id
+			 , type.product_id 			AS productId
+			 , fi.save_file_name 		AS promotionUrl 
+	      FROM promotion  				AS pr
+	INNER JOIN product_image 			AS type 		ON type.product_id = pr.product_id
+	INNER JOIN file_info 				AS fi			ON fi.id=type.file_id 
+		 WHERE type = 'th'
+	</select>
+
+</mapper>

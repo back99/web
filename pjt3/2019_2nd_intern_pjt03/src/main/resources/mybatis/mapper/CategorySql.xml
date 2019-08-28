@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nts.reservation.mapper.CategoryMapper">
+
+	<select id="selectCategoryList"  resultType="com.nts.reservation.dto.Category.CategoryDto">
+			SELECT COUNT(di.id) 				AS count
+				 , category_id 					AS id
+				 , name 						AS name
+			  FROM product 						AS pr
+		INNER JOIN category 					AS ca 			ON pr.category_id=ca.id
+		INNER JOIN display_info					AS di 			ON di.product_id=pr.id
+		  GROUP BY ca.id
+	</select>
+
+</mapper>

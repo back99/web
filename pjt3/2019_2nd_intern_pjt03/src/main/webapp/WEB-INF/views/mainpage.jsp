@@ -1,5 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+
 <!DOCTYPE html>
 <html lang="ko">
 
@@ -22,11 +25,11 @@
 				<h1 class="logo">
 					<a href="https://m.naver.com/" class="lnk_logo" title="네이버"> <span
 						class="spr_bi ico_n_logo">네이버</span>
-					</a> <a href="./myreservation.html" class="lnk_logo" title="예약"> <span
+					</a> <a href="./myreservation.jsp" class="lnk_logo" title="예약"> <span
 						class="spr_bi ico_bk_logo">예약</span>
 					</a>
 				</h1>
-				<a href="./bookinglogin.html" class="btn_my"> <span
+				<a href="bookinglogin" class="btn_my"> <span
 					class="viewReservation" title="예약확인">예약확인</span>
 				</a>
 			</header>
@@ -110,7 +113,7 @@
 
 	<script type="rv-template" id="itemList">
         <li class="item">
-            <a href="detail.html?id={id}" class="item_book">
+            <a href="detail?displayInfoId={id}" class="item_book">
                 <div class="item_preview">
                     <img alt="{description}" class="img_thumb" src="/reservation/{thumbnailUrl}">
                     <span class="img_border"></span>
@@ -132,7 +135,8 @@
     </script>
 
 	<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-	<script type='text/javascript' src='js/mainpage.js'></script>
+	<script type='text/javascript' src='/reservation/js/ajaxerror.js'></script>
+	<script type='text/javascript' src='/reservation/js/mainpage.js'></script>
 
 </body>
 

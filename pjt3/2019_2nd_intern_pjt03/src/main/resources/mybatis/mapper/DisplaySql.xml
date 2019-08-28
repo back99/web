@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nts.reservation.mapper.DisplayMapper">
+
+	<select id="selectEtIamgeFileName"  parameterType="map" resultType="String">
+			SELECT fi.save_file_name 			AS saveFileName 
+			  FROM product_image 				AS pi 
+		INNER JOIN display_info 				AS di 			ON di.product_id = pi.product_id 
+		INNER JOIN file_info 					AS fi 			ON fi.id = pi.file_id 
+			 WHERE pi.type = 'et' AND di.id = #{displayInfoId}
+			 LIMIT 1
+	</select>
+	
+  	<select id="selectAvgScoreByDisplayInfoId" parameterType="map" resultType="Float">
+			SELECT IFNULL(ROUND(AVG(score), 1), 0) 			AS score 
+		  	  FROM reservation_user_comment 				AS ruc 
+		INNER JOIN reservation_info 						AS ri 			ON ri.id=ruc.reservation_info_id 
+			 WHERE ri.display_info_id = #{displayInfoId}
+	</select>
+	
+	<select id="selectTotalCountByDisplayInfoId" parameterType="map" resultType="int">
+			SELECT COUNT(*) 					AS totalCount 
+			  FROM reservation_user_comment 	AS ruc 
+		INNER JOIN reservation_info 			AS ri  			ON ruc.reservation_info_id = ri.id 
+			 WHERE ri.display_info_id = #{displayInfoId}
+	</select>
+	
+	<select id="selectDisplayInfoByDisplayInfoId" parameterType="map" resultType="com.nts.reservation.dto.Display.DisplayInfoDto">
+			SELECT c.id 					AS categoryId 
+				 , c.name 					AS categoryName 
+				 , di.create_date 			AS createDate 
+				 , di.id 					AS displayInfoId 
+				 , di.email 				AS email
+				 , di.homepage 				AS homepage
+				 , di.modify_date 			AS modifyDate 
+				 , di.opening_hours 		AS openingHours 
+				 , di.place_lot 			AS placeLot 
+				 , di.place_name 			AS placeName 
+				 , di.place_street 			AS placeStreet  
+				 , p.content 				AS productContent 
+				 , p.description 			AS productDescription  
+				 , p.event 					AS productEvent  
+				 , p.id 					AS productId 
+				 , di.tel 					AS telephone  
+			  FROM display_info 			AS di  
+		INNER JOIN product 					AS p 				ON di.product_id = p.id 
+		INNER JOIN category 				AS c 				ON p.category_id = c.id 
+			 WHERE di.id = #{displayInfoId}
+	</select>
+	
+	<select id="selectDisplayInfoImagesByDisplayInfoId" parameterType="map" resultType="com.nts.reservation.dto.Display.DisplayInfoImageDto">
+			 SELECT fi.content_type 		AS contentType 
+			 	  , fi.create_date 			AS createDate 
+				  , fi.delete_flag 			AS deleteFlag  
+				  , dii.display_info_id 	AS displayInfoId  
+				  , dii.file_id 			AS displayInfoImageId   
+				  , fi.id 					AS fileId  
+				  , fi.file_name 			AS fileName  
+				  , fi.modify_date 			AS modifyDate  
+				  , fi.save_file_name 		AS saveFileName  
+			   FROM display_info_image 		AS dii  
+		 INNER JOIN file_info 				AS fi 				ON dii.file_id = fi.id  
+			  WHERE dii.display_info_id = #{displayInfoId}
+	</select>
+
+</mapper>

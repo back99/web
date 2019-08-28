@@ -1,8 +1,8 @@
 package com.nts.reservation.service;
 
-import com.nts.reservation.dto.CategoryResultSet;
-import com.nts.reservation.dto.ProductResultSet;
-import com.nts.reservation.dto.PromotionResultSet;
+import com.nts.reservation.dto.Category.CategoryResponse;
+import com.nts.reservation.dto.Product.ProductResponse;
+import com.nts.reservation.dto.Promotion.PromotionResponse;
 
 /**
  * @FileName : MainpageService.java
@@ -12,10 +12,10 @@ import com.nts.reservation.dto.PromotionResultSet;
  */
 public interface MainpageService {
 
-	public PromotionResultSet getPromotionList();
+	public PromotionResponse getPromotionList();
 
-	public CategoryResultSet getCategoryList();
+	public CategoryResponse getCategoryList();
 
-	public ProductResultSet getProductListByCategoryId(int start, int categoryId);
+	public ProductResponse getProductListByCategoryId(int start, Integer categoryId);
 
 }

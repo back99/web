@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nts.reservation.mapper.CommentMapper">
+
+	<select id="selectCommentImageFileSavePath" parameterType="int" resultType="String">
+			 SELECT save_file_name  				 
+			   FROM file_info 						 
+			  WHERE id= #{fileId}
+	</select>
+
+	<select id="selectProductId" parameterType="int" resultType="int">
+			 SELECT product_id AS productId
+			   FROM reservation_info
+			  WHERE id = #{reservationInfoId}
+	</select>
+	
+	<insert id="insertCommentImage" parameterType="com.nts.reservation.dto.Comment.CommentIdDto" useGeneratedKeys="true">
+        INSERT INTO reservation_user_comment_image
+				  ( reservation_info_id
+				  , reservation_user_comment_id
+				  , file_id)
+			 VALUES 
+				  ( #{commentIdDto.reservationInfoId}
+				  , #{commentIdDto.reservationUserCommentId}
+				  , #{commentIdDto.fileId})
+	</insert>
+	
+	<insert id="insertFileInfo" parameterType="com.nts.reservation.dto.Comment.FileInfo" useGeneratedKeys="true"  keyProperty="id">
+        INSERT INTO file_info
+				  ( file_name
+				  , save_file_name
+				  , content_type
+				  , delete_flag
+				  , create_date
+				  , modify_date)
+			 VALUES 
+				  ( #{fileInfo.fileName}
+				  , #{fileInfo.saveFileName}
+				  , #{fileInfo.contentType}
+				  , 0
+				  , NOW()
+				  , NOW())
+	</insert>
+	
+	<insert id="insertCommentParam" parameterType="com.nts.reservation.dto.Comment.CommentParam" useGeneratedKeys="true"  keyProperty="id">
+        INSERT INTO reservation_user_comment
+				  ( product_id
+				  , reservation_info_id
+				  , score
+				  , comment
+				  , create_date
+				  , modify_date)
+			 VALUES 
+				  ( #{commentParam.productId}
+				  , #{commentParam.reservationInfoId}
+				  , #{commentParam.score}
+				  , #{commentParam.comment}
+				  , NOW()
+				  , NOW())
+	</insert>
+
+	<select id="selectCommentsByDisplayInfoId" resultMap="CommentList">
+			SELECT ruc.id 											AS commentId 
+				 , ruc.comment 										AS comment 
+				 , DATE_FORMAT(ruc.create_date, "%Y.%m.%d") 		AS createDate 
+				 , ruc.modify_date 									AS modifyDate 
+				 , ruc.product_id 									AS productId 
+				 , ri.reservation_date 								AS reservationDate 
+				 , CONCAT(LEFT(ri.reservation_email, 4), '****') 	AS reservationEmail 
+				 , ri.display_info_id 								AS reservationInfoId 
+				 , ri.reservation_name 								AS reservationName 
+				 , ri.reservation_tel 								AS reservationTelephone 
+			 	 , IFNULL(ROUND(ruc.score, 1), 0) 					AS score 
+			  FROM reservation_user_comment 						AS ruc 
+		INNER JOIN reservation_info 								AS ri 				ON ruc.reservation_info_id = ri.id 
+			 WHERE ri.display_info_id = #{displayInfoId}
+		  <if test="commentLimitFlag != null">
+		 	 LIMIT 3
+		  </if>
+	</select>
+
+	<select id="selectCommentImagesByDisplayInfoId" resultType="com.nts.reservation.dto.Comment.CommentImagesDto">
+			 SELECT fi.content_type 					AS contentType 
+				  , fi.create_date 						AS createDate 
+				  , fi.delete_flag 						AS deleteFlag 
+				  , ruci.file_id 						AS fileId 
+				  , fi.file_name 						AS fileName 
+				  , ruci.id 							AS imageId 
+				  , fi.modify_date 						AS modifyDate 
+				  , ruci.reservation_info_id 			AS reservationInfoId 
+				  , ruci.reservation_user_comment_id 	AS reservationUserCommentId 
+				  , fi.save_file_name 					AS saveFileName 
+			   FROM file_info							AS fi 
+		 INNER JOIN reservation_user_comment_image 		AS ruci 				ON ruci.file_id = fi.id  
+			  WHERE ruci.reservation_user_comment_id = #{commentId}
+	</select>
+	
+	<resultMap id="CommentList" type="com.nts.reservation.dto.Comment.CommentsDto">
+	  <id property="commentId" column="commentId"/>
+	  <result property="comment" column="comment"/>
+	  <result property="createDate" column="createDate"/>
+	  <result property="modifyDate" column="modifyDate"/>
+	  <result property="productId" column="productId"/>
+  	  <result property="reservationDate" column="reservationDate"/>
+  	  <result property="reservationEmail" column="reservationEmail"/>
+	  <result property="reservationName" column="reservationName"/>
+	  <result property="reservationTelephone" column="reservationTelephone"/>
+	  <result property="score" column="score"/>
+	  <collection property="commentImages" column="commentId" ofType="com.nts.reservation.dto.Comment.CommentImagesDto" select="selectCommentImagesByDisplayInfoId"/>
+	</resultMap>
+	
+</mapper>

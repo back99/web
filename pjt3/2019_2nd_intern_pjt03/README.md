@@ -5,7 +5,7 @@ boostcourse web full-stack 과정 프로젝트3~6
 사용한 skill - jquery
              - spring
              - mybatis
-             - rombok
+             - lombok
              - ajax
              - javascript 객체 리터럴, es6
              - logger
